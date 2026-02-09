@@ -2,7 +2,6 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { requireAuth } from '@/lib/auth/guards';
-import { getUserProfile } from '@/app/actions/users'; // Assuming this exists or we check role manually
 
 /**
  * Helper to ensure user has report access (Admin, Supervisor, Lectura, Contador)
