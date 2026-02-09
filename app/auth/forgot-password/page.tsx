@@ -4,6 +4,8 @@ import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 
+export const dynamic = 'force-dynamic';
+
 export default function ForgotPasswordPage() {
     const supabase = createClient()
     const [email, setEmail] = useState('')
