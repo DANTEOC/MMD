@@ -4,9 +4,6 @@ import { useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 
-export const dynamic = 'force-dynamic';
-
-
 export default function AcceptInvitePage() {
     const searchParams = useSearchParams();
     const router = useRouter();
