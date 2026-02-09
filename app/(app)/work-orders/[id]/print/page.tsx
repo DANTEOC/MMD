@@ -11,7 +11,7 @@ export const metadata = {
 
 export const dynamic = 'force-dynamic';
 
-export default async function PrintPage({ params }: { params: { id: string } }) {
+export default async function PrintPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
     const auth = await requireAuth();
     const supabase = await createClient();

@@ -5,9 +5,13 @@ import { DeleteAssetButton } from './DeleteAssetButton'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 
-export default async function AssetDetailPage({ params }: { params: { id: string } }) {
+
+export default async function AssetDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const auth = await requireAuth()
     const supabase = await createClient()
+
+    // CAMBIO CRÍTICO: Await params antes de usar
+    const { id } = await params
 
     const { data: asset, error } = await supabase
         .from('tenant_assets')
@@ -18,13 +22,15 @@ export default async function AssetDetailPage({ params }: { params: { id: string
                 name
             )
         `)
-        .eq('id', params.id)
+        .eq('id', id)  // Usar 'id' en lugar de 'params.id'
         .eq('tenant_id', auth.tenantId)
         .single()
+
 
     if (error || !asset) {
         notFound()
     }
+
 
     // Obtener lista de clientes para el select
     const { data: clients } = await supabase
@@ -33,8 +39,10 @@ export default async function AssetDetailPage({ params }: { params: { id: string
         .eq('tenant_id', auth.tenantId)
         .order('name', { ascending: true })
 
+
     const canEdit = ['Admin', 'Operador', 'Tecnico'].includes(auth.roleKey)
     const canDelete = auth.roleKey === 'Admin'
+
 
     return (
         <div style={{ padding: '2rem', fontFamily: 'system-ui', maxWidth: '800px', margin: '0 auto' }}>
@@ -47,6 +55,7 @@ export default async function AssetDetailPage({ params }: { params: { id: string
                 </Link>
             </div>
 
+
             <div style={{
                 backgroundColor: 'white',
                 padding: '2rem',
@@ -56,6 +65,7 @@ export default async function AssetDetailPage({ params }: { params: { id: string
                 <h1 style={{ marginTop: 0 }}>
                     {canEdit ? 'Editar Activo' : 'Detalle de Activo'}
                 </h1>
+
 
                 <form action={updateAssetAction.bind(null, asset.id)}>
                     <div style={{ marginBottom: '1.5rem' }}>
@@ -86,6 +96,7 @@ export default async function AssetDetailPage({ params }: { params: { id: string
                         </select>
                     </div>
 
+
                     <div style={{ marginBottom: '1.5rem' }}>
                         <label htmlFor="name" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>
                             Nombre <span style={{ color: '#f44336' }}>*</span>
@@ -108,6 +119,7 @@ export default async function AssetDetailPage({ params }: { params: { id: string
                             }}
                         />
                     </div>
+
 
                     <div style={{ marginBottom: '1.5rem' }}>
                         <label htmlFor="asset_type" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>
@@ -136,6 +148,7 @@ export default async function AssetDetailPage({ params }: { params: { id: string
                         </select>
                     </div>
 
+
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
                         <div>
                             <label htmlFor="make" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>
@@ -159,6 +172,7 @@ export default async function AssetDetailPage({ params }: { params: { id: string
                             />
                         </div>
 
+
                         <div>
                             <label htmlFor="model" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>
                                 Modelo
@@ -181,6 +195,7 @@ export default async function AssetDetailPage({ params }: { params: { id: string
                             />
                         </div>
                     </div>
+
 
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
                         <div>
@@ -207,6 +222,7 @@ export default async function AssetDetailPage({ params }: { params: { id: string
                             />
                         </div>
 
+
                         <div>
                             <label htmlFor="serial" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>
                                 Número de Serie
@@ -229,6 +245,7 @@ export default async function AssetDetailPage({ params }: { params: { id: string
                             />
                         </div>
                     </div>
+
 
                     <div style={{ marginBottom: '1.5rem' }}>
                         <label htmlFor="notes" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>
@@ -253,6 +270,7 @@ export default async function AssetDetailPage({ params }: { params: { id: string
                             }}
                         />
                     </div>
+
 
                     {canEdit && (
                         <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
@@ -289,6 +307,7 @@ export default async function AssetDetailPage({ params }: { params: { id: string
                     )}
                 </form>
 
+
                 <div style={{ borderTop: '1px solid #eee', paddingTop: '1.5rem' }}>
                     <p style={{ fontSize: '0.875rem', color: '#666', margin: '0 0 0.5rem 0' }}>
                         <strong>Creado:</strong> {new Date(asset.created_at).toLocaleString('es-MX')}
@@ -297,6 +316,7 @@ export default async function AssetDetailPage({ params }: { params: { id: string
                         <strong>Actualizado:</strong> {new Date(asset.updated_at).toLocaleString('es-MX')}
                     </p>
                 </div>
+
 
                 {canDelete && (
                     <div style={{ marginTop: '2rem', paddingTop: '2rem', borderTop: '1px solid #eee' }}>
