@@ -539,3 +539,29 @@ export async function consumeInventoryItem(workOrderId: string, formData: FormDa
     revalidatePath(`/work-orders/${workOrderId}`);
     return { success: true };
 }
+
+export async function deleteWorkOrderAction(id: string) {
+    const auth = await requireAuth();
+
+    // Check permissions - only Admin and Supervisor can delete
+    if (!['Admin', 'Supervisor'].includes(auth.roleKey)) {
+        return { success: false, error: 'No tienes permisos para eliminar órdenes de trabajo' };
+    }
+
+    const supabase = await createClient();
+
+    // Delete work order
+    const { error } = await supabase
+        .from('tenant_work_orders')
+        .delete()
+        .eq('id', id)
+        .eq('tenant_id', auth.tenantId);
+
+    if (error) {
+        console.error('Error deleting work order:', error);
+        return { success: false, error: 'Error al eliminar la orden: ' + error.message };
+    }
+
+    revalidatePath('/work-orders');
+    redirect('/work-orders');
+}
